@@ -1,0 +1,103 @@
+// Database schema for The Golden Stitch
+// Extracted from DOCUMENTATION.md lines 117-185
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  password     String?     // bcrypt hashed - optional for OAuth users
+  name         String
+  role         String?     @default("CUSTOMER") // CUSTOMER, DESIGNER, SEAMSTRESS, ADMIN
+  isAdmin      Boolean     @default(false)
+  refreshToken String?     // JWT refresh token
+  oauthProvider String?    // OAuth provider (e.g., 'google')
+  oauthId      String?     // OAuth provider's user ID
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  designs      Design[]
+  seamstress   Seamstress?
+}
+
+model Design {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  price       Float    // Designer royalty
+  rating      Float
+  reviews     Int
+  image       String
+  backImage   String?
+  category    String
+  itemType    String   // CLOTHING, PURSE, HAT
+  tags        String   // JSON array
+  isActive    Boolean
+  designerId  String   // FK to User
+  designer    User     @relation(fields: [designerId], references: [id])
+  orders      Order[]
+}
+
+model Seamstress {
+  id              String   @id @default(uuid())
+  userId          String   @unique  // FK to User
+  specialty       String   // JSON array
+  rating          Float
+  completedOrders Int
+  location        String
+  bio             String?
+  image           String?
+  basePrice       Float
+  estimatedDays   String
+  isActive        Boolean
+  user            User     @relation(fields: [userId], references: [id])
+  orders          Order[]
+}
+
+model DesignPricing {
+  id          String   @id @default(uuid())
+  designId    String   // FK to Design
+  seamstressId String  // FK to Seamstress
+  price       Float
+  difficulty  Int
+  timeline    String?
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id               String     @id @default(uuid())
+  customerId       String     // FK to User
+  designId         String     // FK to Design
+  seamstressId     String     // FK to Seamstress
+  customerName     String
+  customerEmail    String
+  customerPhone    String?
+  totalPrice       Float      // Calculated server-side
+  designerRoyalty  Float
+  seamstressEarning Float
+  status           String     // PLACED, CONFIRMED, APPROVED, PAID, IN_PROGRESS, COMPLETED, REJECTED, CANCELLED
+  paymentStatus    String     // PENDING, PAID, REFUNDED
+  progress         Int        // 0-100
+  rushOrder        Boolean
+  itemType         String     // CLOTHING, PURSE, HAT
+  dressSize        String?
+  chestMeasurement String?
+  waistMeasurement String?
+  hipMeasurement   String?
+  length           String?
+  notes            String?
+  estimatedDelivery String?
+  timeline         String     // JSON array of status changes
+  shippingAddress  String?    // JSON object
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  design           Design     @relation(fields: [designId], references: [id])
+  seamstress       Seamstress @relation(fields: [seamstressId], references: [id])
+}
