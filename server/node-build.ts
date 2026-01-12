@@ -72,7 +72,11 @@ const googleClient = new OAuth2Client(
 );
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json({ limit: '50mb' })); // Increase limit for design uploads
 app.use(express.urlencoded({ extended: true }));
 
@@ -88,7 +92,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'default_secret', (err: any, user: any) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err: any, user: any) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
@@ -163,13 +167,13 @@ app.post('/api/auth/register', async (req, res) => {
     // Generate tokens
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET || 'default_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
     const refreshToken = jwt.sign(
       { userId: user.id },
-      process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
+      process.env.JWT_REFRESH_SECRET,
       { expiresIn: '30d' }
     );
 
@@ -212,13 +216,13 @@ app.post('/api/auth/login', async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET || 'default_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
     const refreshToken = jwt.sign(
       { userId: user.id },
-      process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
+      process.env.JWT_REFRESH_SECRET,
       { expiresIn: '30d' }
     );
 
@@ -253,7 +257,7 @@ app.post('/api/auth/refresh', async (req, res) => {
       return res.status(401).json({ error: 'Refresh token required' });
     }
 
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'default_refresh_secret', async (err: any, decoded: any) => {
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err: any, decoded: any) => {
       if (err) {
         return res.status(403).json({ error: 'Invalid refresh token' });
       }
@@ -268,13 +272,13 @@ app.post('/api/auth/refresh', async (req, res) => {
 
       const newAccessToken = jwt.sign(
         { userId: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
-        process.env.JWT_SECRET || 'default_secret',
+        process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
 
       const newRefreshToken = jwt.sign(
         { userId: user.id },
-        process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
+        process.env.JWT_REFRESH_SECRET,
         { expiresIn: '30d' }
       );
 
@@ -343,13 +347,13 @@ app.post('/api/auth/google', async (req, res) => {
     // Generate tokens
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
-      process.env.JWT_SECRET || 'default_secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
     const refreshToken = jwt.sign(
       { userId: user.id },
-      process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
+      process.env.JWT_REFRESH_SECRET,
       { expiresIn: '30d' }
     );
 
@@ -1099,8 +1103,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/payment-cancelled`,
+      success_url: `${process.env.FRONTEND_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/payment-cancelled`,
       metadata: {
         orderId,
       },
@@ -1153,8 +1157,8 @@ app.post('/api/create-account-link', async (req, res) => {
 
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/choose-role`, // Redirect back to role selection on refresh
-      return_url: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard`, // Redirect to dashboard after onboarding
+      refresh_url: `${process.env.FRONTEND_URL}/choose-role`, // Redirect back to role selection on refresh
+      return_url: `${process.env.FRONTEND_URL}/dashboard`, // Redirect to dashboard after onboarding
       type: 'account_onboarding',
     });
 

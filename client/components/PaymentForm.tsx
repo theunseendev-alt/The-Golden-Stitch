@@ -9,7 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { apiService } from '@/lib/api';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 interface PaymentFormProps {
   orderId: string;
