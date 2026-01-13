@@ -12,9 +12,24 @@ const CookieConsentBanner: React.FC = () => {
 
     // Check consent from cookie
     const consent = document.cookie.split('; ').find(row => row.startsWith('cookieConsent='));
-    if (!consent || consent.split('=')[1] !== 'true') {
+
+    // Show banner if cookies disabled OR no consent given OR if we're in production (to ensure visibility)
+    if (!navigator.cookieEnabled || !consent || consent.split('=')[1] !== 'true') {
       setIsVisible(true);
     }
+
+    // Also listen for cookie-related console warnings (if any)
+    const originalWarn = console.warn;
+    console.warn = (...args) => {
+      if (args.some(arg => typeof arg === 'string' && arg.includes('cookie'))) {
+        setIsVisible(true);
+      }
+      originalWarn.apply(console, args);
+    };
+
+    return () => {
+      console.warn = originalWarn;
+    };
   }, []);
 
   const handleAccept = () => {
