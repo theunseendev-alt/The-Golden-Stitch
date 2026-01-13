@@ -32,6 +32,27 @@ The Golden Stitch is a production-ready fashion marketplace platform where:
 - **Authentication**: JWT with bcrypt
 - **UI**: Radix UI + Lucide React icons
 
+## CI/CD
+
+The project uses GitHub Actions for automated CI/CD pipelines.
+
+- **Triggers**: Push and pull requests to main/master branches
+- **Build**: Installs dependencies, runs tests, builds client and server functions
+- **Deploy**: Automatically deploys to Netlify on successful builds to main/master
+
+### Secrets Configuration
+
+See [Security Documentation](docs/security/) for setting up required secrets:
+- GitHub repository secrets for Netlify authentication
+- Netlify environment variables for production
+
+### Rollback Instructions
+
+To rollback a deployment:
+1. Go to Netlify dashboard > Deploys
+2. Find the previous successful deploy
+3. Click "Publish deploy" or use Netlify CLI: `netlify deploy --prod=false` then promote the desired deploy.
+
 ## Quick Start
 
 ```bash

@@ -1,8 +1,8 @@
 // API Service with JWT Authentication for The Golden Stitch
 import { io, Socket } from "socket.io-client";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002/api";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3002";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin;
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = "accessToken";
