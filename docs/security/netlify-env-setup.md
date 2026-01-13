@@ -6,6 +6,9 @@ Configure environment variables in the Netlify dashboard for production deployme
 
 Map the following variables from your `.env.example` file to Netlify environment variables:
 
+### Database
+- **DATABASE_URL**: PostgreSQL connection string for hosted database
+
 ### JWT Secrets
 - **JWT_SECRET**: Random string for JWT token signing (production only)
 - **JWT_REFRESH_SECRET**: Random string for refresh token signing (production only)

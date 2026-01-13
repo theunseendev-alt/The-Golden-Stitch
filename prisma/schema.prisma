@@ -2,7 +2,7 @@
 // Extracted from DOCUMENTATION.md lines 117-185
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
