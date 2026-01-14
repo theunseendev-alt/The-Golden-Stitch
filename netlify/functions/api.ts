@@ -42,12 +42,12 @@ app.use(express.json({ limit: '50mb' })); // Increase limit for design uploads
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api', paymentRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/designs', designRoutes);
-app.use('/api/seamstresses', seamstressRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api', sharedRoutes);
+app.use('/auth', authRoutes);
+app.use('/payments', paymentRoutes);
+app.use('/orders', orderRoutes);
+app.use('/designs', designRoutes);
+app.use('/seamstresses', seamstressRoutes);
+app.use('/admin', adminRoutes);
+app.use('/', sharedRoutes);
 
 export const handler = serverless(app);
