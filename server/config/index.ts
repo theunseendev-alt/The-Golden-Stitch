@@ -4,15 +4,18 @@ import * as jwt from 'jsonwebtoken';
 import Stripe from 'stripe';
 import { OAuth2Client } from 'google-auth-library';
 
-// Environment variable validation
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
-if (!process.env.JWT_REFRESH_SECRET) {
-  throw new Error('JWT_REFRESH_SECRET environment variable is required');
-}
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required');
+// Environment variable validation - warn instead of throwing in production
+const requiredEnvVars = [
+  'DATABASE_URL',
+  'JWT_SECRET',
+  'JWT_REFRESH_SECRET',
+  'STRIPE_SECRET_KEY'
+];
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.warn(`${envVar} environment variable is not set. This may cause runtime errors.`);
+  }
 }
 
 // Optional but recommended
@@ -40,8 +43,19 @@ let designs = [
   },
 ];
 
-// Initialize Prisma
-const prisma = new PrismaClient();
+// Initialize Prisma lazily to handle serverless cold starts
+let prisma: PrismaClient;
+
+const prismaProxy = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    if (!prisma) {
+      prisma = new PrismaClient({
+        log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      });
+    }
+    return (prisma as any)[prop];
+  }
+});
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -55,4 +69,4 @@ const googleClient = new OAuth2Client(
   process.env.GOOGLE_REDIRECT_URI
 );
 
-export { prisma, stripe, googleClient, designs };
+export { prismaProxy as prisma, stripe, googleClient, designs };

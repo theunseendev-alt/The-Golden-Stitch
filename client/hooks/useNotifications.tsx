@@ -146,15 +146,16 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Request notification permission on mount
+  // Request notification permission when panel is opened (user interaction)
   useEffect(() => {
     if (
+      isNotificationPanelOpen &&
       "Notification" in window &&
       (window as any).Notification.permission === "default"
     ) {
       (window as any).Notification.requestPermission();
     }
-  }, []);
+  }, [isNotificationPanelOpen]);
 
   // Set up callback for order notifications
   useEffect(() => {

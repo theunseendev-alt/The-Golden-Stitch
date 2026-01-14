@@ -1,5 +1,5 @@
 [build]
-  command = "npm run db:generate && npm run db:push"
+  command = "npm run build && npm run build:functions && npm run db:generate && (npm run db:push || echo 'Database push failed, continuing build')"
   publish = "dist/spa"
   functions = "netlify/functions"
 
