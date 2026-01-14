@@ -21,7 +21,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    outDir: "dist/spa",
+    outDir: path.resolve(__dirname, "dist/spa"),
+    emptyOutDir: true,
   },
   plugins: [react()],
   resolve: {
